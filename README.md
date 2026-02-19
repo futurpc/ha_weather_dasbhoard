@@ -10,9 +10,10 @@ A weather dashboard running on the ELECROW CrowPanel 7.0" (ESP32-S3) that displa
 - **Current weather** with Material Design weather icons, wind speed, humidity
 - **3-day forecast** with icons, high/low temperatures
 - **Touch-enabled F/C toggle** to switch temperature units
+- **Light/Dark theme toggle** with one tap
 - **Auto-refresh** every 30 seconds
 - **WiFi auto-reconnect** with status indicator
-- **Dark theme** UI built with LVGL 8
+- **Dark & Light themes** built with LVGL 8
 
 ## Hardware
 
@@ -29,7 +30,7 @@ A weather dashboard running on the ELECROW CrowPanel 7.0" (ESP32-S3) that displa
 
 ```
 +------------------------------------------------------------------+
-| WiFi | Connected | Home Weather | [°C] | Updated: 12:34         |  Status bar
+| WiFi | Connected | Home Weather | [theme] [°C] | Updated: 12:34 |  Status bar
 +--------------------+---------------------------------------------+
 |                    |                                              |
 |  INDOOR            |   [Weather Icon]  Rainy    5°C              |
@@ -54,23 +55,31 @@ A weather dashboard running on the ELECROW CrowPanel 7.0" (ESP32-S3) that displa
 
 ## Configuration
 
-Edit `src/config.h` with your settings:
+1. Copy the secrets template and fill in your credentials:
+
+```bash
+cp src/secrets.h.example src/secrets.h
+```
+
+2. Edit `src/secrets.h` with your WiFi and Home Assistant credentials:
 
 ```cpp
-// WiFi
-#define WIFI_SSID     "your_ssid"
-#define WIFI_PASSWORD "your_password"
+#define WIFI_SSID     "your_wifi_ssid"
+#define WIFI_PASSWORD "your_wifi_password"
+#define HA_BASE_URL   "http://homeassistant.local:8123"
+#define HA_TOKEN      "your_long_lived_access_token"
+```
 
-// Home Assistant
-#define HA_BASE_URL "http://homeassistant.local:8123"
-#define HA_TOKEN    "your_long_lived_access_token"
+3. Edit entity IDs in `src/config.h` to match your HA setup:
 
-// Entity IDs (find these in HA Developer Tools > States)
+```cpp
 #define HA_ENTITY_INDOOR_TEMP  "sensor.your_indoor_temp"
 #define HA_ENTITY_OUTDOOR_TEMP "sensor.your_outdoor_temp"
 #define HA_ENTITY_WEATHER      "weather.your_weather_entity"
 #define HA_ENTITY_SAUNA_TEMP   "climate.your_thermostat"
 ```
+
+> **Note**: `src/secrets.h` is gitignored and will not be committed.
 
 ## Build & Flash
 
@@ -90,12 +99,14 @@ pio device monitor
 ```
 src/
   main.cpp            - Entry point, LVGL timer for 30s HA polling
-  config.h            - WiFi, HA credentials, entity IDs, display constants
+  config.h            - Entity IDs, display constants (includes secrets.h)
+  secrets.h           - WiFi/HA credentials (gitignored - create from secrets.h.example)
+  secrets.h.example   - Credentials template with placeholders
   display.h/.cpp      - LovyanGFX display driver + LVGL integration
   touch.h/.cpp        - GT911 touch driver + LVGL input device
   wifi_manager.h/.cpp - WiFi connect/reconnect
   ha_client.h/.cpp    - HA REST API client
-  ui.h/.cpp           - LVGL UI layout, update, F/C toggle
+  ui.h/.cpp           - LVGL UI layout, update, F/C toggle, light/dark theme toggle
   weather_icons.h     - HA condition -> MDI icon mapping
   weather_font_40.c   - MDI weather icons 40px (current weather)
   weather_font_24.c   - MDI weather icons 24px (forecast cards)
@@ -137,4 +148,4 @@ Both are tried automatically.
 
 - **Polling interval**: Change `HA_POLL_INTERVAL_MS` in `config.h` (default: 30000ms)
 - **Add/remove temperature sensors**: Modify `HAWeatherData` struct in `ha_client.h` and update `ha_fetch_all()` + `ui_create()`/`ui_update()` accordingly
-- **Colors**: Defined at the top of `ui.cpp` (COL_BG, COL_CARD, COL_WARM, COL_COLD, etc.)
+- **Colors/Theme**: Theme colors are runtime functions in `ui.cpp` (`col_bg()`, `col_card()`, etc.) — edit dark/light palettes there
