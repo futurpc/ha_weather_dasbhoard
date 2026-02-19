@@ -3,3 +3,4 @@
 .claude/
 .idea/
 *.iml
+src/secrets.h

@@ -1,13 +1,9 @@
 #pragma once
 
-// ----- WiFi -----
-#define WIFI_SSID     "your_wifi_ssid"
-#define WIFI_PASSWORD "your_wifi_password"
-#define WIFI_TIMEOUT_MS 15000
+#include "secrets.h"  // WIFI_SSID, WIFI_PASSWORD, HA_BASE_URL, HA_TOKEN
 
-// ----- Home Assistant -----
-#define HA_BASE_URL "http://homeassistant.local:8123"
-#define HA_TOKEN    "your_long_lived_access_token"
+// ----- WiFi -----
+#define WIFI_TIMEOUT_MS 15000
 
 // ----- HA Entity IDs -----
 #define HA_ENTITY_INDOOR_TEMP  "sensor.h5071_50bc_temperature"
