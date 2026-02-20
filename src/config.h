@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef SIMULATOR
 #include "secrets.h"  // WIFI_SSID, WIFI_PASSWORD, HA_BASE_URL, HA_TOKEN
+#endif
 
 // ----- WiFi -----
 #define WIFI_TIMEOUT_MS 15000

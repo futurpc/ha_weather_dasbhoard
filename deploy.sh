@@ -9,34 +9,45 @@ if [ ! -x "$PIO" ]; then
     exit 1
 fi
 
-# Check secrets.h exists
-if [ ! -f "$SCRIPT_DIR/src/secrets.h" ]; then
-    echo "Error: src/secrets.h not found."
-    echo "  cp src/secrets.h.example src/secrets.h"
-    echo "  Then fill in your WiFi and HA credentials."
-    exit 1
-fi
-
 usage() {
-    echo "Usage: $0 [build|flash|monitor|all]"
+    echo "Usage: $0 [build|flash|monitor|all|sim]"
     echo "  build   - Compile firmware"
     echo "  flash   - Build and upload to board"
     echo "  monitor - Open serial monitor (115200 baud)"
     echo "  all     - Build, flash, and open monitor"
+    echo "  sim     - Build and run SDL simulator on Mac (no board needed)"
     echo ""
     echo "Default: flash"
 }
 
+check_secrets() {
+    if [ ! -f "$SCRIPT_DIR/src/secrets.h" ]; then
+        echo "Error: src/secrets.h not found."
+        echo "  cp src/secrets.h.example src/secrets.h"
+        echo "  Then fill in your WiFi and HA credentials."
+        exit 1
+    fi
+}
+
 cmd_build() {
+    check_secrets
     echo "==> Building..."
-    "$PIO" run -d "$SCRIPT_DIR"
+    "$PIO" run -d "$SCRIPT_DIR" -e esp32s3
     echo "==> Build OK"
 }
 
 cmd_flash() {
+    check_secrets
     echo "==> Building and flashing..."
-    "$PIO" run -d "$SCRIPT_DIR" -t upload
+    "$PIO" run -d "$SCRIPT_DIR" -e esp32s3 -t upload
     echo "==> Flash OK"
+}
+
+cmd_sim() {
+    echo "==> Building simulator..."
+    "$PIO" run -d "$SCRIPT_DIR" -e native
+    echo "==> Launching simulator (close window to exit)..."
+    "$SCRIPT_DIR/.pio/build/native/program"
 }
 
 cmd_monitor() {
@@ -51,6 +62,7 @@ case "$ACTION" in
     flash)   cmd_flash ;;
     monitor) cmd_monitor ;;
     all)     cmd_flash; cmd_monitor ;;
+    sim)     cmd_sim ;;
     -h|--help|help) usage ;;
     *)
         echo "Unknown action: $ACTION"
