@@ -9,8 +9,14 @@
 
 ## Build & Flash
 - **Build system**: PlatformIO (installed at `/Users/grigoryr_mac/Library/Python/3.9/bin/pio`)
-- **Build**: `pio run -d "<project_dir>"`
-- **Flash**: `pio run -d "<project_dir>" -t upload`
+- **Deploy script**: `./deploy.sh [build|flash|monitor|all]` — wrapper that auto-detects PlatformIO path and checks `secrets.h` exists before building
+  - `./deploy.sh` or `./deploy.sh flash` — build + upload (default)
+  - `./deploy.sh build` — compile only
+  - `./deploy.sh monitor` — serial monitor (115200 baud, interactive)
+  - `./deploy.sh all` — build + flash + monitor
+- **Manual commands** (if not using deploy.sh):
+  - Build: `pio run -d "<project_dir>"`
+  - Flash: `pio run -d "<project_dir>" -t upload`
 - **Upload speed**: 460800 baud (921600 fails on this board)
 - **Serial monitor**: 115200 baud (requires interactive terminal, can't run from Claude Code)
 - **Flash size**: 4MB with `huge_app.csv` partition scheme (NOT 16MB - this is the Basic series N4R8)
@@ -18,6 +24,7 @@
 
 ## Project Structure
 ```
+deploy.sh             - Build/flash/monitor helper script
 src/
   main.cpp            - Entry point: setup/loop, LVGL timer for 30s HA polling
   config.h            - Entity IDs, display dimensions; includes secrets.h
